@@ -36,6 +36,47 @@ def extract_metadata(file_path):
     except Exception as e:
         print(e)
         return {"Error": str(e)}
+    
+from PIL import Image, ImageChops, ImageEnhance
+from io import BytesIO
+
+def ela(image_path):
+    try:
+        # Open the original image
+        original = Image.open(image_path).convert("RGB")
+
+        # Save the image at lower quality for ELA analysis
+        temp_path = image_path + "_temp.jpg"
+        original.save(temp_path, quality=90)
+
+        # Open the recompressed image
+        temp_image = Image.open(temp_path)
+
+        # Compute difference (ELA)
+        diff = ImageChops.difference(original, temp_image)
+
+        # Enhance brightness to highlight changes
+        enhancer = ImageEnhance.Brightness(diff)
+        diff = enhancer.enhance(10)  # Increase brightness
+
+        # Save ELA image in memory as a byte stream
+        ela_image_stream = BytesIO()
+        diff.save(ela_image_stream, format="JPEG")
+        ela_image_stream.seek(0)  # Reset stream position to the beginning
+
+        # Save the byte stream as a temporary file
+        ela_image_path = default_storage.save("temp/ela_output.jpg", ela_image_stream)
+        ela_image_abs_path = default_storage.path(ela_image_path)
+
+        # Clean up temporary image
+        os.remove(temp_path)
+
+        # Return the file path of the saved ELA image
+        return ela_image_abs_path
+
+    except Exception as e:
+        return None
+
 
 def report_file(request):
     if request.method == "POST" and request.FILES.get("document"):
@@ -48,6 +89,8 @@ def report_file(request):
         # Extract metadata
         meta_data = extract_metadata(abs_file_path)
 
+        #ELA Image
+        ela_image_path = ela(abs_file_path)
         # Create a PDF response
         response = HttpResponse(content_type='application/pdf')
         response['Content-Disposition'] = 'attachment; filename="meta_report.pdf"'
@@ -88,6 +131,19 @@ def report_file(request):
             for key, value in meta_data.items():
                 p.drawString(100, y_position, f"{key}: {value}")
                 y_position -= 20
+
+        # Pass 2: ELA Analysis (using saved ELA image)
+        p.setFont("Helvetica-Bold", 14)
+        p.drawString(100, y_position, "🔍 Pass 2: ELA Analysis")
+        y_position -= 20
+
+        try:
+            p.drawImage(ImageReader(ela_image_path), 100, y_position - 250, width=200, height=200)
+            y_position -= 250
+        except Exception as e:
+            p.drawString(100, y_position, "❌ Error displaying ELA image in report.")
+            y_position -= 20
+
 
         # 🟢 4. **Result of Pass 1**
         p.setFont("Helvetica-Bold", 14)
