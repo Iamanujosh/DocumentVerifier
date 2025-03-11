@@ -3,9 +3,11 @@ from . import views
 
 urlpatterns = [
     path('', views.base_file, name='dashboard'),  # Home/Dashboard
+    path('login/', views.login_file, name='login'),  # Login Page
+    
+    path('register/', views.register_file, name='register'),  # Register Page
     path('upload/', views.upload_file, name='upload'),  # File Upload Page
     path('report/', views.report_file, name='report'),
-    # path('login/', views.user_login, name='login'),  # Login Page
-    # path('register/', views.user_register, name='register'),  # Register Page
+    
     # path('logout/', views.user_logout, name='logout'),  # Logout
 ]

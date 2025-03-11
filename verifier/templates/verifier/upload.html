@@ -1,6 +1,19 @@
-<form method="POST" enctype="multipart/form-data" action="{% url 'report' %}">
-    {% csrf_token %}
-    <label for="document">Upload your document:</label>
-    <input type="file" name="document" required>
-    <button type="submit">Generate Report</button>
-</form>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'verifier/css/upload.css' %}">
+    <title>Document</title>
+</head>
+<body>
+    <form method="POST" enctype="multipart/form-data" action="{% url 'report' %}">
+        {% csrf_token %}
+        <label for="document">Upload your document:</label>
+        <input type="file" name="document" required>
+        <button type="submit">Generate Report</button>
+    </form>
+</body>
+</html>
