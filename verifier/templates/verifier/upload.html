@@ -1,0 +1,6 @@
+<form method="POST" enctype="multipart/form-data" action="{% url 'report' %}">
+    {% csrf_token %}
+    <label for="document">Upload your document:</label>
+    <input type="file" name="document" required>
+    <button type="submit">Generate Report</button>
+</form>
