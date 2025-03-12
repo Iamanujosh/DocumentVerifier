@@ -3,11 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'verifier/css/login.css' %}">
-    <title>Document</title>
+    <title>Login</title>
+    {%load static%}
+    <link rel="stylesheet" href="{% static 'verifier/css/register.css' %}"> <!-- Linking CSS file -->
 </head>
 <body>
-    This is login
+    <div class="login-container">
+        <h2>Login</h2>
+        <form action="" method="POST">
+            {% csrf_token %}
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" required>
+
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required>
+
+            <button type="submit">Login</button>
+        </form>
+        <p>Don't have an account? <a href="{% url 'register' %}">Register here</a></p>
+    </div>
 </body>
 </html>

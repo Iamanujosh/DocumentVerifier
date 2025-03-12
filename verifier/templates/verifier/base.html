@@ -3,11 +3,164 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'verifier/css/styles.css' %}">
-    <title>Base Tab</title>
+    <title>Document Verifier</title>
+    <style>
+        /* General Styling */
+        body {
+            background-color: #e8f5e9; /* Light green */
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Navbar */
+        .navbar {
+            background-color: #2e7d32; /* Dark Green */
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            color: white;
+        }
+
+        .navbar h2 {
+            margin: 0;
+        }
+
+        .navbar .nav-buttons {
+            display: flex;
+            gap: 15px;
+        }
+
+        .nav-buttons a {
+            text-decoration: none;
+            color: white;
+            background-color: #43a047;
+            padding: 8px 15px;
+            border-radius: 6px;
+            font-size: 16px;
+            transition: 0.3s ease-in-out;
+        }
+
+        .nav-buttons a:hover {
+            background-color: #388e3c;
+            transform: scale(1.05);
+        }
+
+        /* Main Content */
+        .container {
+            text-align: center;
+            padding: 50px 20px;
+        }
+
+        h1 {
+            color: #2e7d32;
+        }
+
+        p {
+            font-size: 18px;
+            color: #555;
+            margin-bottom: 20px;
+        }
+
+        .cta-button {
+            background-color: #43a047;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 18px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: 0.3s ease-in-out;
+            display: inline-block;
+            margin-top: 10px;
+        }
+
+        .cta-button:hover {
+            background-color: #388e3c;
+            transform: scale(1.05);
+        }
+
+        /* Features Section */
+        .features {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 30px;
+            padding: 50px 20px;
+        }
+
+        .feature-box {
+            background-color: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 280px;
+        }
+
+        .feature-box img {
+            width: 100px;
+            height: 100px;
+        }
+
+        .feature-box h3 {
+            color: #2e7d32;
+            margin: 10px 0;
+        }
+
+        /* Footer */
+        .footer {
+            background-color: #2e7d32;
+            color: white;
+            text-align: center;
+            padding: 15px;
+            margin-top: 50px;
+        }
+    </style>
 </head>
 <body>
-    This is BAse file for refffff...
+
+    <!-- Navbar -->
+    <div class="navbar">
+        <h2>Document Verifier</h2>
+        <div class="nav-buttons">
+            <a href="{% url 'login' %}">Login</a>
+            <a href="{% url 'register' %}">Sign Up</a>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container">
+        <h1>Welcome to Document Verifier</h1>
+        <p>Securely upload and verify your documents with AI-powered analysis.</p>
+        <a href="{% url 'upload' %}" class="cta-button">Get Started</a>
+    </div>
+
+    <!-- Features Section -->
+    <div class="features">
+        <div class="feature-box">
+            <img src="https://cdn-icons-png.flaticon.com/512/1828/1828665.png" alt="Upload Document">
+            <h3>Easy Upload</h3>
+            <p>Upload your documents securely and quickly.</p>
+        </div>
+        <div class="feature-box">
+            <img src="https://cdn-icons-png.flaticon.com/512/3382/3382171.png" alt="AI Verification">
+            <h3>AI Verification</h3>
+            <p>Our AI model checks document authenticity.</p>
+        </div>
+        <div class="feature-box">
+            <img src="https://cdn-icons-png.flaticon.com/512/1596/1596816.png" alt="Secure Database">
+            <h3>Secure Storage</h3>
+            <p>All files are safely stored and encrypted.</p>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        <p>&copy; 2025 Document Verifier. All rights reserved.</p>
+    </div>
+
 </body>
 </html>

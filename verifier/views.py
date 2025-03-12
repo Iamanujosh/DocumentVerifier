@@ -5,17 +5,48 @@ from reportlab.lib.pagesizes import letter
 from reportlab.lib.utils import ImageReader
 from PIL import Image
 from PIL.ExifTags import TAGS
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.core.files.storage import default_storage
+from django.contrib import messages
+from django.contrib.auth.models import User
+from django.contrib.auth import authenticate, login
 
 def base_file(request):
     return render(request, "verifier/base.html")  # Looks inside templates/verifier/
 
 def register_file(request):
+    if request.method == 'POST':
+        username = request.POST['username']
+        email = request.POST['email']
+        password = request.POST['password']
+        confirm_password = request.POST['confirm_password']
+
+        if password == confirm_password:
+            if not User.objects.filter(username=username).exists():
+                User.objects.create_user(username=username, email=email, password=password)
+                messages.success(request, "Registration successful!")
+                return redirect('login')
+            else:
+                messages.error(request, "Username already exists!")
+        else:
+            messages.error(request, "Passwords do not match!")
     return render(request,"verifier/register.html")
 
 def login_file(request):
-    return render(request,"verifier/login.html")
+    if request.method == 'POST':
+        username = request.POST['username']
+        password = request.POST['password']
+
+        user = authenticate(request, username=username, password=password)
+
+        if user is not None:
+            login(request, user)
+            messages.success(request, "Login successful!")
+            return redirect('upload')  # Redirect to upload.html
+        else:
+            messages.error(request, "Invalid username or password!")
+
+    return render(request, "verifier/login.html")
 
 def upload_file(request):
     return render(request, "verifier/upload.html")
@@ -40,6 +71,8 @@ def extract_metadata(file_path):
 from PIL import Image, ImageChops, ImageEnhance
 from io import BytesIO
 
+import numpy as np
+
 def ela(image_path):
     try:
         # Open the original image
@@ -55,11 +88,17 @@ def ela(image_path):
         # Compute difference (ELA)
         diff = ImageChops.difference(original, temp_image)
 
+        # Convert the difference to a numpy array for analysis
+        diff_np = np.array(diff)
+
         # Enhance brightness to highlight changes
         enhancer = ImageEnhance.Brightness(diff)
         diff = enhancer.enhance(10)  # Increase brightness
 
-        # Save ELA image in memory as a byte stream
+        # Analyze the ELA image for potential forgery
+        forgery_detected = analyze_ela_for_forgery(diff_np)
+
+        # Save the ELA image in memory as a byte stream
         ela_image_stream = BytesIO()
         diff.save(ela_image_stream, format="JPEG")
         ela_image_stream.seek(0)  # Reset stream position to the beginning
@@ -71,11 +110,29 @@ def ela(image_path):
         # Clean up temporary image
         os.remove(temp_path)
 
-        # Return the file path of the saved ELA image
-        return ela_image_abs_path
+        # Return the file path of the saved ELA image and the forgery detection result
+        return ela_image_abs_path, forgery_detected
 
     except Exception as e:
-        return None
+        return None, str(e)
+
+
+def analyze_ela_for_forgery(diff_np):
+    """Analyze the ELA image (difference) to detect forgery based on intensity of differences."""
+    # Convert image to grayscale for easier analysis
+    gray_diff = np.mean(diff_np, axis=2)
+
+    # Set a threshold for bright spots in the ELA image
+    threshold = 50  # This value can be adjusted based on how sensitive you want the detection to be
+
+    # Count the number of bright spots in the ELA image
+    bright_spots = np.sum(gray_diff > threshold)
+
+    # If there are too many bright spots, we might consider the image as forged
+    if bright_spots > 5000:  # Adjust this number as needed to set sensitivity
+        return "Forgery detected (based on ELA analysis)."
+    else:
+        return "No forgery detected."
 
 
 def report_file(request):
@@ -89,8 +146,9 @@ def report_file(request):
         # Extract metadata
         meta_data = extract_metadata(abs_file_path)
 
-        #ELA Image
-        ela_image_path = ela(abs_file_path)
+        # ELA Image and forgery detection
+        ela_image_path, forgery_result = ela(abs_file_path)
+
         # Create a PDF response
         response = HttpResponse(content_type='application/pdf')
         response['Content-Disposition'] = 'attachment; filename="meta_report.pdf"'
@@ -132,37 +190,36 @@ def report_file(request):
                 p.drawString(100, y_position, f"{key}: {value}")
                 y_position -= 20
 
-        # Pass 2: ELA Analysis (using saved ELA image)
+        # 🟢 4. **Pass 2: ELA Analysis**
         p.setFont("Helvetica-Bold", 14)
         p.drawString(100, y_position, "🔍 Pass 2: ELA Analysis")
         y_position -= 20
 
-        try:
-            p.drawImage(ImageReader(ela_image_path), 100, y_position - 250, width=200, height=200)
-            y_position -= 250
-        except Exception as e:
-            p.drawString(100, y_position, "❌ Error displaying ELA image in report.")
-            y_position -= 20
+       
 
-
-        # 🟢 4. **Result of Pass 1**
-        p.setFont("Helvetica-Bold", 14)
-        p.drawString(100, y_position, "📌  Result:")
+        # Add the forgery detection result
+        p.setFont("Helvetica", 12)
+        p.drawString(100, y_position, f"Result: {forgery_result}")
         y_position -= 20
 
-        # Check for suspicious metadata
-        sus_reasons = is_suspicious(meta_data)
+        # # 🟢 5. **Result of Pass 1**
+        # p.setFont("Helvetica-Bold", 14)
+        # p.drawString(100, y_position, "📌  Result:")
+        # y_position -= 20
 
-        if sus_reasons:
-            p.setFont("Helvetica", 12)
-            p.drawString(100, y_position, "❌ Suspicious Metadata Detected:")
-            y_position -= 20
-            for reason in sus_reasons:
-                p.drawString(120, y_position, f"- {reason}")
-                y_position -= 20
-        else:
-            p.setFont("Helvetica", 12)
-            p.drawString(100, y_position, "✅ Pass 1 Passed: No suspicious metadata found.")
+        # # Check for suspicious metadata
+        # sus_reasons = is_suspicious(meta_data)
+
+        # if sus_reasons:
+        #     p.setFont("Helvetica", 12)
+        #     p.drawString(100, y_position, "❌ Suspicious Metadata Detected:")
+        #     y_position -= 20
+        #     for reason in sus_reasons:
+        #         p.drawString(120, y_position, f"- {reason}")
+        #         y_position -= 20
+        # else:
+        #     p.setFont("Helvetica", 12)
+        #     p.drawString(100, y_position, "✅ Pass 1 Passed: No suspicious metadata found.")
 
         # Save the PDF
         p.showPage()

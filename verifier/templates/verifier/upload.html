@@ -1,12 +1,62 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'verifier/css/upload.css' %}">
-    <title>Document</title>
+    <title>Upload Document</title>
+    <style>
+        body {
+            background-color: #e8f5e9; /* Light green background */
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        form {
+            background-color: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 320px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        label {
+            font-size: 18px;
+            color: #2e7d32; /* Dark green */
+            margin-bottom: 10px;
+        }
+
+        input[type="file"] {
+            border: 2px solid #2e7d32;
+            padding: 8px;
+            border-radius: 6px;
+            width: 100%;
+            margin-bottom: 15px;
+        }
+
+        button {
+            background-color: #43a047; /* Green */
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            width: 100%;
+            transition: 0.3s ease-in-out;
+        }
+
+        button:hover {
+            background-color: #388e3c; /* Darker green */
+            transform: scale(1.05);
+        }
+    </style>
 </head>
 <body>
     <form method="POST" enctype="multipart/form-data" action="{% url 'report' %}">
