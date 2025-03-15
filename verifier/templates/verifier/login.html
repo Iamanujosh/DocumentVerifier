@@ -1,16 +1,21 @@
+{% load static tailwind_tags %}
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
+    {% tailwind_css %}
     {%load static%}
     <link rel="stylesheet" href="{% static 'verifier/css/register.css' %}"> <!-- Linking CSS file -->
 </head>
-<body>
-    <div class="login-container">
-        <h2>Login</h2>
-        <form action="" method="POST">
+
+<body class="bg-black text-white">
+    <h2 class="text-4xl">Login to Your Accout</h2>
+    <div class="flex space-x-5 mt-2 ">
+        <div>
+            <form action="" method="POST">
             {% csrf_token %}
             <label for="username">Username:</label>
             <input type="text" id="username" name="username" required>
@@ -19,8 +24,21 @@
             <input type="password" id="password" name="password" required>
 
             <button type="submit">Login</button>
-        </form>
-        <p>Don't have an account? <a href="{% url 'register' %}">Register here</a></p>
+        </form></div>
+        
+
+        <p>/</p>
+
+        <ul>
+            <li>Google</li>
+            <li>FaceBook</li>
+            <li>Apple</li>
+        </ul>
+    </div>
+
+    <p>Don't have an account? <a href="{% url 'register' %}">Register here</a></p>
+    </div>
     </div>
 </body>
+
 </html>
