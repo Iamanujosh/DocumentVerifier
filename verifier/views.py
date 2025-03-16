@@ -129,7 +129,7 @@ def analyze_ela_for_forgery(diff_np):
     bright_spots = np.sum(gray_diff > threshold)
 
     # If there are too many bright spots, we might consider the image as forged
-    if bright_spots > 5000:  # Adjust this number as needed to set sensitivity
+    if bright_spots > 500:  # Adjust this number as needed to set sensitivity
         return "Forgery detected (based on ELA analysis)."
     else:
         return "No forgery detected."

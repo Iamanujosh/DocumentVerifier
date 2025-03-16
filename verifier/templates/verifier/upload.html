@@ -7,47 +7,27 @@
     {% tailwind_css %}
     <title>Upload Document</title>
   </head>
-  <body
-    class="min-h-screen bg-cover bg-center bg-[radial-gradient(ellipse_at_top_center,_rgba(0,0,0,0.8),_black)] text-black mx-2 my-2 rounded-xl px-10 py-10 justify-center items-center h-screen m-0"
-  >
-    <nav class="bg-white flex rounded-2xl items-center mx-2 my-2">
-      <div class="text-2xl font-bold ml-10">Docs</div>
-      <ul class="flex space-x-4 ml-60 px-5 py-5">
-        <li class="px-3 text-xl font-mono font-bold hover:underline">
-          <a href="">Home</a>
+  <body class =" bg-slate-200">
+  <nav class="bg-white flex rounded-2xl items-center mx-1 my-1 py-2">
+    <div class="text-2xl font-bold ml-10">Dociffy</div>
+    <ul class="flex space-x-3 ml-52 px-1 py-1">
+        <li class="px-1 text-lg font-mono font-bold hover:underline"><a href="{% url 'home' %}">Home</a></li>
+        <li class="px-1 text-lg font-mono font-bold hover:underline"> <a href="">Upload</a></li>
+        <li class="px-1 text-lg font-mono font-bold hover:underline"> <a href="{% url 'upload' %}">Verify</a></li>
+        <li class="px-1 text-lg font-mono font-bold hover:underline"><a href="">Profile</a></li>
+        <li class="px-1 text-lg font-mono font-bold hover:underline"> <a href="">About Us</a></li> 
+        <li class="space-x-1 flex ml-10">
+            <button class="bg-white ml-80 w-28 rounded-xl border border-black px-2"> <a href="{% url 'login' %}">Sign in</a></button>
+            <button class="bg-black ml-80 w-28 text-white rounded-xl border border-black px-2"><a href="{% url 'register' %}">Get Started</a></button>
         </li>
-        <li class="px-3 text-xl font-mono font-bold hover:underline">
-          <a href="">Upload</a>
-        </li>
-        <li class="px-3 text-xl font-mono font-bold hover:underline">
-          <a href="">Verify</a>
-        </li>
-        <li class="px-3 text-xl font-mono font-bold hover:underline">
-          <a href="">Profile</a>
-        </li>
-        <li class="px-3 text-xl font-mono font-bold hover:underline">
-          <a href="">About Us</a>
-        </li>
-        <li class="space-x-1 flex ml-16">
-          <button
-            class="bg-white ml-80 w-28 rounded-xl border border-black px-2"
-          >
-            Sign-in
-          </button>
-          <button
-            class="bg-black ml-80 w-28 text-white rounded-xl border border-black px-2"
-          >
-            Get Started
-          </button>
-        </li>
-      </ul>
-    </nav>
-    <div>
+    </ul>
+        </nav>
+    <div class="min-h-screen bg-cover bg-center bg-[radial-gradient(ellipse_at_top_center,_rgba(0,0,0,0.8),_black)] text-black mx-2 my-2 rounded-xl px-10 py-10 justify-center items-center h-screen m-0 flex">
       <form
         method="POST"
         enctype="multipart/form-data"
         action="{% url 'report' %}"
-        class="bg-white p-8 rounded-xl shadow-lg max-w-md w-full flex flex-col items-center mt-40"
+        class="bg-white p-8 rounded-xl shadow-lg max-w-md w-full flex flex-col items-center mt-10"
       >
         {% csrf_token %}
         <h2 class="text-2xl font-semibold text-gray-900 mb-6">
