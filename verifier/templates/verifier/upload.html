@@ -1,69 +1,74 @@
+{% load static tailwind_tags %}
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    {% tailwind_css %}
     <title>Upload Document</title>
-    <style>
-        body {
-            background-color: #e8f5e9; /* Light green background */
-            font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
-
-        form {
-            background-color: white;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            width: 320px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        label {
-            font-size: 18px;
-            color: #2e7d32; /* Dark green */
-            margin-bottom: 10px;
-        }
-
-        input[type="file"] {
-            border: 2px solid #2e7d32;
-            padding: 8px;
-            border-radius: 6px;
-            width: 100%;
-            margin-bottom: 15px;
-        }
-
-        button {
-            background-color: #43a047; /* Green */
-            color: white;
-            border: none;
-            padding: 12px;
-            border-radius: 6px;
-            font-size: 16px;
-            cursor: pointer;
-            width: 100%;
-            transition: 0.3s ease-in-out;
-        }
-
-        button:hover {
-            background-color: #388e3c; /* Darker green */
-            transform: scale(1.05);
-        }
-    </style>
-</head>
-<body>
-    <form method="POST" enctype="multipart/form-data" action="{% url 'report' %}">
+  </head>
+  <body
+    class="min-h-screen bg-cover bg-center bg-[radial-gradient(ellipse_at_top_center,_rgba(0,0,0,0.8),_black)] text-black mx-2 my-2 rounded-xl px-10 py-10 justify-center items-center h-screen m-0"
+  >
+    <nav class="bg-white flex rounded-2xl items-center mx-2 my-2">
+      <div class="text-2xl font-bold ml-10">Docs</div>
+      <ul class="flex space-x-4 ml-60 px-5 py-5">
+        <li class="px-3 text-xl font-mono font-bold hover:underline">
+          <a href="">Home</a>
+        </li>
+        <li class="px-3 text-xl font-mono font-bold hover:underline">
+          <a href="">Upload</a>
+        </li>
+        <li class="px-3 text-xl font-mono font-bold hover:underline">
+          <a href="">Verify</a>
+        </li>
+        <li class="px-3 text-xl font-mono font-bold hover:underline">
+          <a href="">Profile</a>
+        </li>
+        <li class="px-3 text-xl font-mono font-bold hover:underline">
+          <a href="">About Us</a>
+        </li>
+        <li class="space-x-1 flex ml-16">
+          <button
+            class="bg-white ml-80 w-28 rounded-xl border border-black px-2"
+          >
+            Sign-in
+          </button>
+          <button
+            class="bg-black ml-80 w-28 text-white rounded-xl border border-black px-2"
+          >
+            Get Started
+          </button>
+        </li>
+      </ul>
+    </nav>
+    <div>
+      <form
+        method="POST"
+        enctype="multipart/form-data"
+        action="{% url 'report' %}"
+        class="bg-white p-8 rounded-xl shadow-lg max-w-md w-full flex flex-col items-center mt-40"
+      >
         {% csrf_token %}
-        <label for="document">Upload your document:</label>
-        <input type="file" name="document" required>
-        <button type="submit">Generate Report</button>
-    </form>
-</body>
+        <h2 class="text-2xl font-semibold text-gray-900 mb-6">
+          Upload Your Document
+        </h2>
+        <label for="document" class="text-gray-700 text-lg mb-2"
+          >Choose a file to upload:</label
+        >
+        <input
+          type="file"
+          name="document"
+          required
+          class="border-2 border-gray-300 focus:border-gray-600 focus:ring-2 focus:ring-gray-600 p-3 rounded-md w-full mb-6 text-gray-900 bg-gray-100 hover:bg-gray-200 transition ease-in-out duration-300"
+        />
+        <button
+          type="submit"
+          class="bg-black text-white py-3 px-6 rounded-md text-lg w-full hover:bg-gray-800 focus:ring-2 focus:ring-gray-600 transition duration-300 ease-in-out transform hover:scale-105"
+        >
+          Generate Report
+        </button>
+      </form>
+    </div>
+  </body>
 </html>

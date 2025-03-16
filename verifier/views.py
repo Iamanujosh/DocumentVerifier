@@ -42,7 +42,7 @@ def login_file(request):
         if user is not None:
             login(request, user)
             messages.success(request, "Login successful!")
-            return redirect('upload')  # Redirect to upload.html
+            return redirect('home')  # Redirect to upload.html
         else:
             messages.error(request, "Invalid username or password!")
 

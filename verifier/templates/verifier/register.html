@@ -1,31 +1,50 @@
+{% load static tailwind_tags %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register</title>
+    {% tailwind_css %}
     {%load static%}
-    <link rel="stylesheet" href="{% static 'verifier/css/register.css' %}">
 </head>
-<body>
-    <div class="register-container">
-        <h2>Register</h2>
-        <form method="POST" action="">
+<body class="bg-black text-white flex items-center justify-center min-h-screen">
+    {% csrf_token %}
+    <div class="text-center">
+        <h2 class="text-3xl font-bold mb-2">Register Your Account</h2>
+        <p class="text-gray-400 mb-6">Welcome to dociffy youre own document verifier.</p>
+<div class="flex space-x-10">
+        <form method="POST" action="" class="flex flex-col">
             {% csrf_token %}
-            <label for="username">Username</label>
-            <input type="text" id="username" name="username" required>
             
-            <label for="email">Email</label>
-            <input type="email" id="email" name="email" required>
+            <input type="text" placeholder="Username" class="w-96 bg-gray-800 text-white px-4 py-3 rounded-lg mb-3 focus:outline-none" id="username" name="username" required>
             
-            <label for="password">Password</label>
-            <input type="password" id="password" name="password" required>
+            <input type="email" placeholder="Email" class="w-96 bg-gray-800 text-white px-4 py-3 rounded-lg mb-3 focus:outline-none" id="email" name="email" required>
             
-            <label for="confirm_password">Confirm Password</label>
-            <input type="password" id="confirm_password" name="confirm_password" required>
+            <input type="password" placeholder="Password" class="w-96 bg-gray-800 text-white px-4 py-3 rounded-lg mb-3 focus:outline-none" id="password" name="password" required>
             
-            <button type="submit">Register</button>
+            <input type="password" placeholder="Confirm Password" class="w-96 bg-gray-800 text-white px-4 py-3 rounded-lg mb-3 focus:outline-none" id="confirm_password" name="confirm_password" required>
+            
+            <button class="bg-gradient-to-r from-green-400 to-yellow-400 text-black font-semibold  w-96 px-6 py-3 rounded-lg flex-1" type="submit">Register</button>
         </form>
+
+        <div class="mt-20">/</div>
+    
+        <div>
+                <div class="items-center justify-between">
+                    <div class="flex-1">
+                        <button class="w-96 border border-green-400 flex items-center justify-center px-4 py-3 rounded-lg mb-2">
+                            <img src="google-icon.svg" class="w-5 h-5 mr-2" alt=""> Sign in with Google
+                        </button>
+                        <button class="w-96 border  border-green-400 flex items-center justify-center px-4 py-3 rounded-lg mb-2">
+                            <img src="facebook-icon.svg" class="border- w-5 h-5 mr-2" alt=""> Sign in with Facebook
+                        </button>
+                        <button class="w-96 border  border-green-400 flex items-center justify-center px-4 py-3 rounded-lg">
+                            <img src="apple-icon.svg" class="w-5 h-5 mr-2" alt=""> Sign in with Apple Account
+                        </button>
+                    </div>
+                </div>
+        </div>
     </div>
 </body>
 </html>

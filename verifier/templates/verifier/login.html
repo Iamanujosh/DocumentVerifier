@@ -8,36 +8,49 @@
     <title>Login</title>
     {% tailwind_css %}
     {%load static%}
-    <link rel="stylesheet" href="{% static 'verifier/css/register.css' %}"> <!-- Linking CSS file -->
+    
 </head>
 
-<body class="bg-black text-white">
-    <h2 class="text-4xl">Login to Your Accout</h2>
-    <div class="flex space-x-5 mt-2 ">
+<body class="bg-black text-white flex items-center justify-center min-h-screen">
+    {% csrf_token %}
+    <div class=" text-center">
+        <h2 class="text-3xl font-bold mb-2">Login to Your Account</h2>
+        <p class="text-gray-400 mb-6">Welcome to dociffy youre own document verifier.</p>
+
+        <!-- Form -->
+<div class="flex space-x-10">
+    <div>
         <div>
-            <form action="" method="POST">
-            {% csrf_token %}
-            <label for="username">Username:</label>
-            <input type="text" id="username" name="username" required>
+            <form action="" method="POST" class="flex flex-col">
+                {% csrf_token %}
+            <input type="text" placeholder="Usrename" class="w-96 bg-gray-800 text-white px-4 py-3 rounded-lg mb-3 focus:outline-none" id="username" name="username" required>
 
-            <label for="password">Password:</label>
-            <input type="password" id="password" name="password" required>
+            <input type="password" placeholder="8 Digit Pin" class="w-96 bg-gray-800 text-white px-4 py-3 rounded-lg mb-3 focus:outline-none" id="password" name="password" required>
 
-            <button type="submit">Login</button>
-        </form></div>
-        
-
-        <p>/</p>
-
-        <ul>
-            <li>Google</li>
-            <li>FaceBook</li>
-            <li>Apple</li>
-        </ul>
+            <button class="bg-gradient-to-r from-green-400 to-yellow-400 text-black font-semibold  w-96 px-6 py-3 rounded-lg flex-1" type="submit">Login to Your Account</button>
     </div>
-
-    <p>Don't have an account? <a href="{% url 'register' %}">Register here</a></p>
+</form>
     </div>
+ 
+    <div class="mt-20">/</div>
+    
+    <div>
+            <div class="items-center justify-between">
+                <div class="flex-1">
+                    <button class="w-96 border border-green-400 flex items-center justify-center px-4 py-3 rounded-lg mb-2">
+                        <img src="google-icon.svg" class="w-5 h-5 mr-2" alt=""> Sign in with Google
+                    </button>
+                    <button class="w-96 border  border-green-400 flex items-center justify-center px-4 py-3 rounded-lg mb-2">
+                        <img src="facebook-icon.svg" class="border- w-5 h-5 mr-2" alt=""> Sign in with Facebook
+                    </button>
+                    <button class="w-96 border  border-green-400 flex items-center justify-center px-4 py-3 rounded-lg">
+                        <img src="apple-icon.svg" class="w-5 h-5 mr-2" alt=""> Sign in with Apple Account
+                    </button>
+                </div>
+            </div>
+    </div>
+</div>
+<p class="mt-4">Dont have account ? <a href="{% url 'register' %}">Register here</a></p>
     </div>
 </body>
 
