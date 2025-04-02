@@ -9,200 +9,34 @@
 	{% tailwind_css %}
 	<title>Home Page</title>
 </head>
-<body class="bg-slate-200 px-0">
+<body class="bg-slate-200 px-0 font-serif">
     <nav class="bg-white flex rounded-2xl items-center mx-1 my-1 py-2">
     <div class="text-2xl font-bold ml-10">Dociffy</div>
     <ul class="flex space-x-3 ml-52 px-1 py-1">
         <li class="px-1 text-lg font-mono font-bold hover:underline"><a href="{% url 'home' %}">Home</a></li>
-        <li class="px-1 text-lg font-mono font-bold hover:underline"> <a href="">Upload</a></li>
-        <li class="px-1 text-lg font-mono font-bold hover:underline"> <a href="{% url 'upload' %}">Verify</a></li>
-        <li class="px-1 text-lg font-mono font-bold hover:underline"><a href="">Profile</a></li>
-        <li class="px-1 text-lg font-mono font-bold hover:underline"> <a href="">About Us</a></li> 
-        <li class="space-x-1 flex ml-10">
-            <button class="bg-white ml-80 w-28 rounded-xl border border-black px-2"> <a href="{% url 'login' %}">Sign in</a></button>
-            <button class="bg-black ml-80 w-28 text-white rounded-xl border border-black px-2"><a href="{% url 'register' %}">Get Started</a></button>
-        </li>
+        <li class="px-1 text-lg font-mono font-bold hover:underline"> <a href="{% url 'upload'%}">Upload</a></li>
+        <li class="px-1 text-lg font-mono font-bold hover:underline"> <a href="{% url 'verify' %}">Verify</a></li>
+        <li class="px-1 text-lg font-mono font-bold hover:underline"><a href="{% url 'profile'%}">Profile</a></li>
+        <li class="px-1 text-lg font-mono font-bold hover:underline"> <a href="#aboutSection">About Us</a></li> 
+  {% if not user.is_authenticated %}
+    <li class="space-x-1 flex ml-10">
+        <button class="bg-white ml-80 w-28 rounded-xl border border-black px-2">
+            <a href="{% url 'login' %}">Sign in</a>
+        </button>
+        <button class="bg-black ml-80 w-28 text-white rounded-xl border border-black px-2">
+            <a href="{% url 'register' %}">Get Started</a>
+        </button>
+    </li>
+{% endif %}
+
     </ul>
         </nav>
         <main>
-        
-    <!-- Section 1 -->
-    <div class="min-h-screen  bg-cover bg-center bg-[radial-gradient(ellipse_at_top_center,_rgba(0,0,0,0.8),_black)] text-white mx-2 my-2 rounded-xl">
-                <!-- Left hand animation -->
-                <div class="animate-wiggle">
-                    <div class="absolute left-28 top-28"><img class="h-10" src="{% static 'verifier/image/gray-box.png' %}" alt="img"></div>
-                  
-                  <div class="absolute right-60 top-80 h-2"><img class="h-10" src="{% static 'verifier/image/gray-box.png' %}" alt="img"></div>
-                  
-                    <div class="absolute left-28 top-96 h-2"><img class="h-10" src="{% static 'verifier/image/gray-box.png' %}" alt="img"></div>
-                  
-                   </div>
-                   <!-- Left hand animation -->
-                   <div class="animate-ziggle">
-                  <div class="absolute right-28 top-28 h-2"><img class="h-10" src="{% static 'verifier/image/gray-box.png' %}" alt="img"></div>
-                
-                  <div class="absolute left-40 top-64 h-2"><img class="h-10" src="{% static 'verifier/image/gray-box.png' %}" alt="img"></div>
-    
-                    <div class="absolute right-28 top-96 h-2"><img class="h-10" src="{% static 'verifier/image/gray-box.png' %}" alt="img"></div>
-                
-                </div>
-                
-                <div class="grid grid-cols-10 grid-rows-auto gap-5" style="grid-auto-rows: min-content;">
-                  <!-- Notification -->
-                  <div class="justify-center content-center pt-1 bg-white bg-opacity-15 rounded-xl flex space-x-2 col-start-5 col-end-7 h-7 row-start-4">
-                    <p class="text-white text-sm">Discover all new Dociffy</p>
-                    <i class="fas fa-arrow-right my-0 p-1 bg-white bg-opacity-5 rounded-lg"></i>
-                  </div>
-                
-                  <!-- Title -->
-                  <div class="text-center col-start-3 col-end-9 row-start-5">
-                    <p class="font-semibold text-4xl">One Tools For Doing it <br> All Together</p>
-                  </div>
-                
-                  <!-- Description -->
-                  <div class="text-center col-start-4 col-end-8  row-start-6 text-sm text-gray-300 font-semibold">
-                    <p>Dociffy empowers you to achieve accuracy and security at scale by seamlessly linking document verification processes to your organization's compliance and authentication goals.</p>
-                  </div>
-    
-                  <!-- Buttons -->
-                  
-                    <button class="row-start-8 col-start-5  bg-white content-center justify-center px-2 py-2 text-black rounded-xl font-bold text-sm"><a href="{% url 'register' %}">Get Started</a></button>
-                    <button class="row-start-8 col-start-6 col-end-7  bg-black px-2 py-2 text-white rounded-xl font-bold text-sm">How it Works</button>
-                
-                  
-                  <!-- Image -->
-                  <div id="scrollImage" class="col-start-3 col-end-9 row-start-9">
-                    <img src="{% static 'verifier/image/videoframe_4770.png' %}" alt="center img">
-                  </div>
-                </div>
-              
-              </div>  
-<!--Section 2-->
-<div class="bg-white rounded-2xl mx-2 my-2 px-20 py-20">
-
-    <div class="flex bg-white text-sm space-x-1 px-5 py-2 w-fit font-bold rounded-xl border shadow-lg">
-      <i class="fa-solid fa-gear pt-2" style="color: #2a3447;"></i>
-    <p class="text-gray-700 text-xl">
-      Features
-    </p>
-  </div>
-
-  <p class="text-5xl mt-5 font-semibold">
-    Everything Your Looking For
-  </p>
-
-  
-
-<div class="flex pt-20 space-x-10"> 
-
-  <div class="rounded-xl w-auto px-5 py-5  border  overflow-hidden">
-    <i class="mx-5 my-10 fa-solid fa-code fa-xl" style="color: #f7f6f9; background-color: #6d4abe; padding: 20px; border-radius: 5px;"></i>
-  <h1 class="flex text-2xl font-bold pt-5">Webhook & API for External Apps </h1>
-  <p class=" text-xl text-gray-700 pt-2" > 
-    Provide APIs for businesses to integrate document verification into their own systems.
-    </p> 
-  </div>
-
-  <div class="rounded-xl w-auto px-5 py-5  border  overflow-hidden">
-    <i class="mx-5 my-10 fa-solid fa-code fa-xl" style="color: #f7f6f9; background-color: #6d4abe; padding: 20px; border-radius: 5px;"></i>
-  <h1 class="flex text-2xl font-bold pt-5">Cloud Storage Integration</h1>
-  <p class=" text-xl text-gray-700 pt-2" > 
-    Store verified documents securely in cloud storage (Google Drive, OneDrive, etc.).
-    </p> 
-  </div>
-</div>
-
-<div class="flex pt-20 space-x-10"> 
-
-  <div class="rounded-xl w-auto px-5 py-5  border  overflow-hidden">
-    <i class="mx-5 my-10 fa-solid fa-code fa-xl" style="color: #f7f6f9; background-color: #6d4abe; padding: 20px; border-radius: 5px;"></i>
-  <h1 class="flex text-2xl font-bold pt-5">Conversational AI for Verification </h1>
-  <p class=" text-xl text-gray-700 pt-2" > 
-    A chatbot that guides users through the verification process and answers queries.
-    </p> 
-  </div>
-
-  <div class="rounded-xl w-auto px-5 py-5  border  overflow-hidden">
-    <i class="mx-5 my-10 fa-solid fa-code fa-xl" style="color: #f7f6f9; background-color: #6d4abe; padding: 20px; border-radius: 5px;"></i>
-  <h1 class="flex text-2xl font-bold pt-5">Instant Notification & Status Tracking</h1>
-  <p class=" text-xl text-gray-700 pt-2" > 
-    Notify users about verification progress in real-time.
-
-    </p> 
-  </div>
-</div>
-</div>
-<!--Section 3-->
-<div class="bg-white rounded-2xl mx-2 my-2 px-20 py-20">
-
-    <div class="flex bg-white text-sm space-x-1 px-5 py-2 w-fit font-bold rounded-xl border shadow-lg">
-      <i class="fa-solid fa-gear pt-2" style="color: #2a3447;"></i>
-    <p class="text-gray-700 text-xl">
-      Why Dociffy
-    </p>
-  </div>
-  
-  <p class="text-5xl mt-5 font-semibold">
-    Increase Protection and Security
-  </p>
-  
-  <p class="text-lg mt-5 text-gray-700">
-    Supercharge productivity. Stremline work by doing it, and seeing it, in one place.
-  </p>
-  
-  <div class="flex pt-20 space-x-10"> 
-  
-  <div class="rounded-xl w-1/3 px-5 py-5  border  overflow-hidden">
-    <i class="mx-5 my-10 fa-solid fa-code fa-xl" style="color: #f7f6f9; background-color: #6d4abe; padding: 20px; border-radius: 5px;"></i>
-  <h1 class="flex text-2xl font-bold pt-5">AI-Powered</h1>
-  <p class=" text-xl text-gray-700 pt-2" > 
-    Recognizes security features like holograms, watermarks, and microtext for government-issued documents.
-    </p> 
-  </div>
-  
-  <div class="rounded-xl w-1/3 px-5 py-5  border  overflow-hidden">
-    <i class="mx-5 my-10 fa-solid fa-code fa-xl" style="color: #f7f6f9; background-color: #0fccd6; padding: 20px; border-radius: 5px;"></i>
-  <h1 class="flex text-2xl font-bold pt-5"> Instant & Hassle-Free Verification
-  </h1>
-  <p class=" text-xl text-gray-700 pt-2" > Real-time document scanning and verification within seconds.
-  </p> 
-  </div>
-  
-  <div class="rounded-xl w-1/3 px-5 py-5  border  overflow-hidden">
-    <i class="mx-5 my-10 fa-solid fa-code fa-xl" style="color: #f7f6f9; background-color: #0ee496; padding: 20px; border-radius: 5px;"></i>
-  <h1 class="flex text-2xl font-bold pt-5"> Mobile & Cloud-Enabled for Convenience
-  </h1>
-  <p class=" text-xl text-gray-700 pt-2" >Cloud storage integration with Google Drive, OneDrive, etc.
-
-  </p> 
-  </div>
-  </div>
-  </div>
-
-  <!--Section 4-->
-<div class="bg-black rounded-xl text-white font-mono p-10">
-    <h1 class="rounded-xl py-1 px-2 w-28 bg-white bg-opacity-15">About Us</h1>
-
-  
-        <h3 class="text-2xl my-5">Meet Our Team:</h3>
-        <ul>
-            <li><span class="text-xl">[Founder/CEO Name]</span> – Visionary behind Dociffy, ensuring secure and scalable verification.</li>
-            <li> <span class="text-xl">[Founder/CEO Name]</span>  – Leads the tech team in building AI-powered document analysis.</li>
-            <li><span class="text-xl">[Founder/CEO Name]</span>  – Always ready to assist with your verification needs.</li>
-        </ul> 
-
-        <h3 class="text-2xl my-5">📧 Contact Us:</h3>
-        <ul>
-            <li class="text-blue-400"><span class="text-white text-xl">General Inquiries:</span> – support@dociffy.com</li>
-
-            <li class="text-blue-400" > <span class="text-xl text-white ">Partnerships & Business: </span>  – support@dociffy.com</li>
-
-            <li class="text-blue-400"><span class="text-xl text-white ">Technical Support:</span>  – support@dociffy.com </li>
-        </ul> 
-
-        <h3 class="text-2xl my-5">❓ Need Help?</h3>
-       <p>Check out our Help Center for step-by-step guides and FAQs: <span class="text-blue-400">dociffy.com/help</span>
-        Or, chat with our support team 24/7 via our live chat feature!</p>
-</div>
+            <div class="min-h-screen  bg-cover bg-center bg-[radial-gradient(ellipse_at_top_center,_rgba(0,0,0,0.8),_black)] text-white mx-2 my-2 rounded-xl">
+                {% block content %}
+                <!-- Default content if not overridden -->
+                {% endblock %}
+            </div>
+        </main>
 </body>
 </html>

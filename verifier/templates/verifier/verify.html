@@ -1,0 +1,77 @@
+{% load static tailwind_tags %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    {% tailwind_css %}
+    <title>Upload Document</title>
+  </head>
+  <body class =" bg-slate-200 font-serif">
+    <nav class="bg-white flex rounded-2xl items-center mx-1 my-1 py-2">
+      <div class="text-2xl font-bold ml-10">Dociffy</div>
+      <ul class="flex space-x-3 ml-52 px-1 py-1">
+          <li class="px-1 text-lg font-mono font-bold hover:underline"><a href="{% url 'home' %}">Home</a></li>
+          <li class="px-1 text-lg font-mono font-bold hover:underline"> <a href="{% url 'upload'%}">Upload</a></li>
+          <li class="px-1 text-lg font-mono font-bold hover:underline"> <a href="{% url 'verify' %}">Verify</a></li>
+          <li class="px-1 text-lg font-mono font-bold hover:underline"><a href="{% url 'profile'%}">Profile</a></li>
+          <li class="px-1 text-lg font-mono font-bold hover:underline"> <a href="../#aboutSection">About Us</a></li> 
+    {% if not user.is_authenticated %}
+      <li class="space-x-1 flex ml-10">
+          <button class="bg-white ml-80 w-28 rounded-xl border border-black px-2">
+              <a href="{% url 'login' %}">Sign in</a>
+          </button>
+          <button class="bg-black ml-80 w-28 text-white rounded-xl border border-black px-2">
+              <a href="{% url 'register' %}">Get Started</a>
+          </button>
+      </li>
+  {% endif %}
+  
+      </ul>
+          </nav>
+          <div class="min-h-screen bg-cover bg-center bg-[radial-gradient(ellipse_at_top_center,_rgba(0,0,0,0.8),_black)] text-black mx-2 my-2 rounded-xl px-10 py-10 justify-center items-center h-screen m-0 flex">
+            <form
+              method="POST"
+              enctype="multipart/form-data"
+              action="{% url 'report' %}"
+              class="bg-white p-8 rounded-xl shadow-lg max-w-md w-full flex flex-col items-center mt-10"
+            >
+              {% csrf_token %}
+              <h2 class="text-2xl font-semibold text-gray-900 mb-6">
+                Upload Your Document
+              </h2>
+              
+              <label for="document" class="text-gray-700 text-lg mb-2">
+                Choose a file to upload:
+              </label>
+              <input
+                type="file"
+                name="document"
+                required
+                class="border-2 border-gray-300 focus:border-gray-600 focus:ring-2 focus:ring-gray-600 p-3 rounded-md w-full mb-6 text-gray-900 bg-gray-100 hover:bg-gray-200 transition ease-in-out duration-300"
+              />
+          
+              <!-- Checkbox for storing document and report -->
+              <div class="flex items-center mb-6 w-full">
+                <input
+                  type="checkbox"
+                  id="store_document"
+                  name="store_document"
+                  class="w-5 h-5 text-black border-2 border-gray-400 rounded-md focus:ring-gray-600 focus:ring-2 checked:bg-black checked:border-black transition duration-200 ease-in-out"
+                />
+                <label for="store_document" class="ml-3 text-gray-700 text-lg">
+                  Store document and report on website?
+                </label>
+              </div>
+          
+              <button
+                type="submit"
+                class="bg-black text-white py-3 px-6 rounded-md text-lg w-full hover:bg-gray-800 focus:ring-2 focus:ring-gray-600 transition duration-300 ease-in-out transform hover:scale-105"
+              >
+                Generate Report
+              </button>
+            </form>
+          </div>
+          
+  </body>
+</html>

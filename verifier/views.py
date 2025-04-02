@@ -10,11 +10,17 @@ from django.core.files.storage import default_storage
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login
+from django.contrib.auth.decorators import login_required
+from .models import Profile
+from joblib import load
 
-def base_file(request):
-    return render(request, "verifier/base.html")  # Looks inside templates/verifier/
+# Load the pre-trained model
+model = load(r'C:\Users\Anushka\Desktop\Django projects\DocumentVerify\savedModels\models.joblib')
 
-def register_file(request):
+def home(request):
+    return render(request, "verifier/home.html")  # Looks inside templates/verifier/
+
+def register(request):
     if request.method == 'POST':
         username = request.POST['username']
         email = request.POST['email']
@@ -32,7 +38,7 @@ def register_file(request):
             messages.error(request, "Passwords do not match!")
     return render(request,"verifier/register.html")
 
-def login_file(request):
+def login_view(request):
     if request.method == 'POST':
         username = request.POST['username']
         password = request.POST['password']
@@ -48,8 +54,57 @@ def login_file(request):
 
     return render(request, "verifier/login.html")
 
-def upload_file(request):
-    return render(request, "verifier/upload.html")
+def verify(request):
+    return render(request, "verifier/verify.html")
+
+def upload(request):
+    sepal_length = request.GET['sepal_length']
+    sepal_width = request.GET['sepal_width']
+    petal_length = request.GET['petal_length']
+    petal_width = request.GET['petal_width']
+
+    # Make a prediction using the model
+    y_pred = model.predict([[sepal_length, sepal_width, petal_length, petal_width]])
+
+    # Convert numerical prediction to class name
+    if y_pred[0] == 0:
+        y_pred = 'Setosa'
+    elif y_pred[0] == 1:
+        y_pred = 'Versicolor'
+    else:
+        y_pred = 'Virginica'
+
+    # Render the result in the 'result.html' template
+    return render(request, 'verifier/upload.html', {'result': y_pred})
+
+
+def profile(request):
+    return render(request,"verifier/profile.html")
+
+
+@login_required
+def upload_profile_picture(request):
+    if request.method == "POST" and request.FILES.get("profile_picture"):
+        request.user.profile.profile_picture = request.FILES["profile_picture"]
+        request.user.profile.save()
+    return redirect("profile")
+
+@login_required
+def delete_profile_picture(request):
+    request.user.profile.profile_picture.delete()
+    return redirect("profile")
+
+@login_required
+def upload_background(request):
+    if request.method == "POST" and request.FILES.get("background_image"):
+        request.user.profile.background_image = request.FILES["background_image"]
+        request.user.profile.save()
+    return redirect("profile")
+
+@login_required
+def delete_background(request):
+    request.user.profile.background_image.delete()
+    return redirect("profile")
 
 def extract_metadata(file_path):
     """Extract metadata from image files."""
