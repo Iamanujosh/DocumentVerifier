@@ -1,0 +1,29 @@
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <input type="file" name="document" accept="image/*">
+    <button type="submit">Verify Document</button>
+</form>
+
+<div id="result"></div>
+
+<script>
+document.querySelector('form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    
+    const response = await fetch('/verify/', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+        }
+    });
+    
+    const result = await response.json();
+    document.getElementById('result').innerHTML = `
+        <h3>Result: ${result.prediction}</h3>
+        <p>Real Confidence: ${(result.confidence.real * 100).toFixed(2)}%</p>
+        <p>Fake Confidence: ${(result.confidence.fake * 100).toFixed(2)}%</p>
+    `;
+});
+</script>
