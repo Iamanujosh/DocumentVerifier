@@ -1,14 +1,7 @@
-{% extends 'verifier/base.html' %}
-
-{% block title %}Upload Page{% endblock %}
-
-{% block content %}
-<form action="">
-    Sepal Length : <input class="text-black" type="number" name="sepal_length" required><br>
-    Sepal Width : <input  class="text-black" type="number" name="sepal_width" required><br>
-    Petal Length : <input class="text-black"  type="number" name="petal_length" required><br>
-    Petal Width : <input  class="text-black" type="number" name="petal_width" required><br>
-    <input type="submit">
-</form>
-<h1>Result:{{result}}</h1>
-{% endblock %}
+<!-- templates/upload.html -->
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <input type="file" name="document" accept="image/*" required>
+    <button type="submit">Analyze Document</button>
+  </form>
+  

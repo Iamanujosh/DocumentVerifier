@@ -1,3 +1,6 @@
+from PIL import Image
+import os
+import tempfile
 import os
 from datetime import datetime
 from django.http import HttpResponse, JsonResponse
@@ -284,6 +287,7 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
+
 def generate_verification_report(image_path, prediction_proba, result):
     report_name = "document_verification_report.pdf"
     doc = SimpleDocTemplate(report_name, pagesize=letter,
@@ -434,3 +438,4 @@ def generate_verification_report(image_path, prediction_proba, result):
     doc.build(elements)
     print(f"✅ Report saved as {report_name}")
     return report_name
+
