@@ -4,7 +4,8 @@ import tempfile
 import os
 from datetime import datetime
 from django.http import HttpResponse, JsonResponse
-from django.shortcuts import render, redirect
+import json
+from django.shortcuts import render, redirect, get_object_or_404
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
 from django.contrib import messages
@@ -23,17 +24,25 @@ import piexif
 import cv2
 import numpy as np
 import matplotlib.pyplot as plt
+import PyPDF2
 from joblib import load
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 import pandas as pd
 import kagglehub
-from .models import Profile
+from .models import Profile, DocumentReport, ChatMessage
 from django.http import HttpResponse
 from io import BytesIO
 import tempfile
 import os
+import google.generativeai as genai
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth.decorators import login_required
+from django.utils.decorators import method_decorator
+from .models import StoredDocument
+import json
 from datetime import datetime
 from reportlab.lib.pagesizes import letter
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Image as RLImage, Table, TableStyle
@@ -47,6 +56,9 @@ from django.http import FileResponse
 
 # Load the pre-trained model
 model = load(r'C:\Users\Anushka\Desktop\Django projects\DocumentVerify\savedModels\train_models.joblib')
+
+genai.configure(api_key="AIzaSyAqzwDW-csXMz0Teihqns7Jtx5rBD4r-LE")  # Replace with your API key
+model_gemini = genai.GenerativeModel('gemini-2.0-flash')
 
 def home(request):
     return render(request, "verifier/home.html")  # Looks inside templates/verifier/
@@ -110,7 +122,9 @@ def upload(request):
 
 
 def profile(request):
-    return render(request,"verifier/profile.html")
+    docs = StoredDocument.objects.filter(user=request.user)
+    return render(request, 'verifier/profile.html', {'documents': docs})
+    
 
 
 @login_required
@@ -264,7 +278,7 @@ def report_file(request):
 
                 
             print(proba,result)
-            report_path = generate_verification_report(temp_path, proba[0], result)
+            report_path = generate_verification_report(request.user,temp_path, proba[0], result)
             return FileResponse(open(report_path, 'rb'), as_attachment=True, filename='Document_Verification_Report.pdf')
 
         except Exception as e:
@@ -288,7 +302,8 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
 
-def generate_verification_report(image_path, prediction_proba, result):
+def generate_verification_report(user, image_path, prediction_proba, result):
+    buffer = BytesIO()
     report_name = "document_verification_report.pdf"
     doc = SimpleDocTemplate(report_name, pagesize=letter,
                            rightMargin=72, leftMargin=72,
@@ -436,6 +451,232 @@ def generate_verification_report(image_path, prediction_proba, result):
     elements.append(Paragraph(disclaimer_text, normal_style))
 
     doc.build(elements)
+     # Move buffer to the beginning
+    buffer.seek(0)
+
+    # Create a StoredDocument and store both the uploaded file and the generated report
+    stored = StoredDocument(user=user)
+    stored.report_file.save("document_verification_report.pdf", ContentFile(buffer.read()))
+    stored.save()
+
+    buffer.close()
     print(f"✅ Report saved as {report_name}")
     return report_name
 
+@login_required
+def report_list(request):
+    reports = DocumentReport.objects.filter(user=request.user)
+    return render(request, "verifier/report_list.html", {"reports": reports})
+
+@login_required
+def delete_report(request, report_id):
+    report = get_object_or_404(DocumentReport, id=report_id, user=request.user)
+    report.report_file.delete()
+    report.delete()
+    return redirect('report_list')
+
+def extract_text_from_pdf(pdf_path):
+    text = ""
+    try:
+        with open(pdf_path, 'rb') as file:
+            reader = PyPDF2.PdfReader(file)
+            for page in reader.pages:
+                text += page.extract_text()
+    except Exception as e:
+        text = f"Error extracting text: {e}"
+    return text
+
+@login_required
+def chatbot_view(request, report_id=None):
+    import logging
+    logger = logging.getLogger(__name__)
+    
+    report = None
+    report_text = None
+    messages = []
+    
+    try:
+        # Get current report if specified
+        if report_id:
+            logger.info(f"Accessing report with ID: {report_id} for user: {request.user.username}")
+            try:
+                report = get_object_or_404(DocumentReport, id=report_id, user=request.user)
+                report_path = report.report_file.path
+                report_text = extract_text_from_pdf(report_path)
+                # Get existing chat messages for this report
+                messages = ChatMessage.objects.filter(report=report).order_by('created_at')
+                # Store current report ID in session
+                request.session['current_report_id'] = report_id
+            except Exception as e:
+                logger.error(f"Error accessing report {report_id}: {str(e)}")
+                return render(request, "verifier/chatbot.html", {
+                    "error": f"Could not access the report: {str(e)}"
+                })
+        
+        # Helper function to determine prompt based on message content
+        def create_appropriate_prompt(user_query, report_text):
+            # Basic conversational phrases that don't need report analysis
+            conversational_phrases = [
+                "thank", "ok", "hello", "hi", "hey", "goodbye", "bye", 
+                "thanks", "appreciate", "got it", "understood", "great", 
+                "awesome", "cool", "nice"
+            ]
+            
+            # Check if query is just conversational
+            is_conversational = any(phrase in user_query.lower() for phrase in conversational_phrases) and len(user_query.split()) < 5
+            
+            if is_conversational:
+                return f"User said: '{user_query}'. Respond conversationally without analyzing any report."
+            elif report_text:
+                return f"The user has a document with the following content: {report_text}\n\nUser question: {user_query}\n\nAnswer the user question clearly and concisely in a friendly, helpful tone. Focus on information from the report if relevant to the question."
+            else:
+                return f"User question: {user_query}. The user hasn't uploaded a report yet, so kindly let them know you need a report to analyze specific document content."
+        
+        # Handle AJAX request for chatbot
+        if request.method == "POST" and request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            try:
+                data = json.loads(request.body)
+                user_query = data.get("message", "")
+                logger.info(f"AJAX chatbot request from user: {request.user.username}, query: {user_query[:50]}...")
+                
+                # Save user message
+                user_message = ChatMessage(
+                    report=report,
+                    user=request.user,
+                    content=user_query,
+                    is_user=True
+                )
+                user_message.save()
+                
+                # Generate AI response
+                try:
+                    prompt = create_appropriate_prompt(user_query, report_text)
+                    logger.debug(f"Sending prompt to model for user: {request.user.username}")
+                    response = model_gemini.generate_content(prompt)
+                    ai_response = response.text
+                    
+                except Exception as e:
+                    logger.error(f"Model error for user {request.user.username}: {str(e)}")
+                    ai_response = f"I'm sorry, I encountered an error while processing your request. Please try again."
+                
+                # Save AI response
+                ai_message = ChatMessage(
+                    report=report,
+                    user=request.user,
+                    content=ai_response,
+                    is_user=False
+                )
+                ai_message.save()
+                
+                return JsonResponse({"response": ai_response})
+            except json.JSONDecodeError as e:
+                logger.error(f"JSON decode error in AJAX request: {str(e)}")
+                return JsonResponse({"error": "Invalid JSON"}, status=400)
+            except Exception as e:
+                logger.error(f"Unexpected error in AJAX handler: {str(e)}")
+                return JsonResponse({"error": str(e)}, status=500)
+        
+        # Handle form submission for message
+        if request.method == "POST" and request.POST.get("user_query"):
+            user_query = request.POST["user_query"]
+            logger.info(f"Form chatbot request from user: {request.user.username}, query: {user_query[:50]}...")
+            
+            # Save user message
+            user_message = ChatMessage(
+                report=report,
+                user=request.user,
+                content=user_query,
+                is_user=True
+            )
+            user_message.save()
+            
+            # Generate AI response
+            try:
+                prompt = create_appropriate_prompt(user_query, report_text)
+                logger.debug(f"Sending prompt to model for user: {request.user.username}")
+                response = model_gemini.generate_content(prompt)
+                ai_response = response.text
+                
+                # Save AI response
+                ai_message = ChatMessage(
+                    report=report,
+                    user=request.user,
+                    content=ai_response,
+                    is_user=False
+                )
+                ai_message.save()
+            except Exception as e:
+                logger.error(f"Error generating AI response for user {request.user.username}: {str(e)}")
+                # Save error message
+                error_message = f"I'm sorry, I encountered an error while processing your request. Please try again."
+                ai_message = ChatMessage(
+                    report=report,
+                    user=request.user,
+                    content=error_message,
+                    is_user=False
+                )
+                ai_message.save()
+            
+            # Refresh messages
+            if report:
+                messages = ChatMessage.objects.filter(report=report).order_by('created_at')
+            
+            # Return to the same page to continue the conversation
+            return redirect(request.path)
+        
+        # Handle file upload
+        if request.method == "POST" and request.FILES.get("document"):
+            uploaded_file = request.FILES["document"]
+            logger.info(f"File upload attempt by user: {request.user.username}, filename: {uploaded_file.name}")
+            
+            try:
+                # Create new report
+                new_report = DocumentReport(
+                    user=request.user,
+                    report_file=uploaded_file,
+                    # title=uploaded_file.name
+                )
+                new_report.save()
+                
+                # Extract text
+                report_text = extract_text_from_pdf(new_report.report_file.path)
+                logger.info(f"Successfully processed file for user: {request.user.username}, report ID: {new_report.id}")
+                
+                # Redirect to the new report's chatbot view
+                return redirect('chatbot_view', report_id=new_report.id)
+            except Exception as e:
+                logger.error(f"File upload/processing error for user {request.user.username}: {str(e)}")
+                return render(request, "verifier/chatbot.html", {
+                    "error": f"Error processing your file: {str(e)}"
+                })
+    
+    except Exception as e:
+        logger.error(f"Unhandled exception in chatbot_view: {str(e)}")
+        return render(request, "verifier/chatbot.html", {
+            "error": "An unexpected error occurred. Please try again or contact support."
+        })
+    
+    return render(request, "verifier/chatbot.html", {
+        "report": report, 
+        "report_text": report_text,
+        "messages": messages
+    })
+
+@csrf_exempt
+def store_document_view(request):
+    if request.method == 'POST' and request.user.is_authenticated:
+        data = json.loads(request.body)
+        if data.get('store'):
+            # Assuming you already have a file uploaded and want to save a copy of it
+            user = request.user
+
+            # Replace this with the logic to get user's latest uploaded document
+            # For demo, you can hardcode a file path or load from DB
+            doc = StoredDocument.objects.create(
+                user=user,  # or dynamically selected
+                report='reports/sample_report.pdf'
+            )
+            return JsonResponse({"message": "Document and report stored."})
+        else:
+            return JsonResponse({"message": "Checkbox unchecked. Nothing stored."})
+    return JsonResponse({"error": "Unauthorized or invalid request."}, status=400)

@@ -13,4 +13,9 @@ urlpatterns = [
     path('profile/delete-profile-picture/', views.delete_profile_picture, name='delete_profile_picture'),
     path('profile/upload-background/', views.upload_background, name='upload_background'),
     path('profile/delete-background/', views.delete_background, name='delete_background'),
+    path('report_list/', views.report_list, name='report_list'), # add report list path
+    path('delete_report/<int:report_id>/', views.delete_report, name='delete_report'), # add delete report path
+    path('chatbot/', views.chatbot_view, name='chatbot_view'), #add chatbot path.
+    path('chatbot/<int:report_id>/', views.chatbot_view, name='chatbot_view'), #chatbot with report id.
+    #path('store-document/', views.report_view, name='store-document'),
 ]

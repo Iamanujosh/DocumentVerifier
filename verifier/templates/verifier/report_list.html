@@ -1,0 +1,36 @@
+{% extends 'verifier/base.html' %}
+{% load static %}
+{% block title %}Your Reports{% endblock %}
+
+{% block content %}
+<div class="container mx-auto mt-8">
+    <h1 class="text-2xl px-10 py-5 font-bold mb-4">Your Generated Reports</h1>
+
+    {% if reports %}
+        <div class="overflow-x-auto ">
+            <table class="px-100 min-w-full bg-black border border-gray-300">
+                <thead>
+                    <tr>
+                        <th class="py-2 px-4 border-b">Report Date</th>
+                        <th class="py-2 px-4 border-b">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for report in reports %}
+                        <tr>
+                            <td class="py-2 px-4 border-b">{{ report.created_at }}</td>
+                            <td class="py-2 px-4 border-b">
+                                <a href="{{ report.report_file.url }}" class="text-blue-500 hover:underline mr-2" target="_blank">Download</a>
+                                <a href="{% url 'chatbot_view' report.id %}" class="text-green-500 hover:underline mr-2">Explain with AI</a>
+                                <a href="{% url 'delete_report' report.id %}" class="text-red-500 hover:underline">Delete</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p class="text-gray-500">No reports generated yet.</p>
+    {% endif %}
+</div>
+{% endblock %}

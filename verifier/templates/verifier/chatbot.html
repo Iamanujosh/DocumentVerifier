@@ -1,0 +1,576 @@
+{% load static tailwind_tags %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    {% tailwind_css %}
+    <title>Dociffy - Document Chat</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+        }
+        .chat-bubble-user {
+            background-color: #292b2d;
+            color: white;
+            border-radius: 18px 18px 0 18px;
+            padding: 12px 16px;
+            margin-left: auto;
+            margin-right: 0;
+            max-width: 75%;
+            margin-bottom: 12px;
+            position: relative;
+        }
+        .chat-bubble-bot {
+            background-color: #e9ecef;
+            color: #212529;
+            border-radius: 18px 18px 18px 0;
+            padding: 12px 16px;
+            margin-right: auto;
+            margin-left: 0;
+            max-width: 75%;
+            margin-bottom: 12px;
+            position: relative;
+        }
+        .chat-time {
+            font-size: 0.7rem;
+            text-align: right;
+            opacity: 0.8;
+            margin-top: 5px;
+        }
+        .chat-input {
+            border-radius: 24px;
+            padding: 12px 20px;
+            border: 1px solid #ddd;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .send-btn {
+            border-radius: 50%;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #1e1f20;
+            color: white;
+            border: none;
+        }
+        .navbar {
+            background-color: #1e1f20;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .navbar-brand {
+            font-weight: bold;
+            font-size: 1.5rem;
+        }
+        .nav-link {
+            border-radius: 20px;
+            padding: 0.5rem 1rem;
+            margin: 0 0.2rem;
+            transition: all 0.3s;
+        }
+        .nav-link:hover {
+            background-color: rgba(255,255,255,0.1);
+        }
+        .messages-container {
+            height: 400px;
+            overflow-y: auto;
+            padding: 1rem;
+            background-color: #f8f9fa;
+        }
+        .chatbot-toggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background-color: #1e1f20;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            border: none;
+            z-index: 1000;
+        }
+        .chatbot-popup {
+            position: fixed;
+            bottom: 90px;
+            right: 20px;
+            width: 320px;
+            background-color: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            z-index: 1000;
+            overflow: hidden;
+            display: none;
+        }
+        .chatbot-header {
+            background-color: #1e1f20;
+            color: white;
+            padding: 15px;
+            font-weight: bold;
+        }
+        .chatbot-messages {
+            height: 300px;
+            overflow-y: auto;
+            padding: 15px;
+            background-color: #f8f9fa;
+        }
+        .chatbot-input-container {
+            display: flex;
+            padding: 10px;
+            border-top: 1px solid #eee;
+        }
+        @media (max-width: 768px) {
+            .sidebar {
+                border-right: none;
+                border-bottom: 1px solid #dee2e6;
+            }
+        }
+        .typing-indicator {
+            display: inline-block;
+            padding: 5px 15px;
+        }
+        .typing-indicator span {
+            height: 8px;
+            width: 8px;
+            float: left;
+            margin: 0 1px;
+            background-color: #9E9EA1;
+            display: block;
+            border-radius: 50%;
+            opacity: 0.4;
+            animation: typing 1s infinite;
+        }
+        .typing-indicator span:nth-of-type(1) { animation-delay: 0.2s; }
+        .typing-indicator span:nth-of-type(2) { animation-delay: 0.4s; }
+        .typing-indicator span:nth-of-type(3) { animation-delay: 0.6s; }
+        @keyframes typing {
+            0% { opacity: 0.4; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.2); }
+            100% { opacity: 0.4; transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="bg-white flex rounded-2xl items-center mx-1 my-1 py-2">
+        <div class="text-2xl font-bold ml-10">Dociffy</div>
+        <ul class="flex space-x-3 ml-52 px-1 py-1">
+            <li class="px-1 text-lg font-mono font-bold hover:underline"><a href="{% url 'home' %}">Home</a></li>
+            <li class="px-1 text-lg font-mono font-bold hover:underline"> <a href="{% url 'chatbot_view'%}">Chatbot</a></li></li>
+            <li class="px-1 text-lg font-mono font-bold hover:underline"> <a href="{% url 'verify' %}">Verify</a></li>
+            <li class="px-1 text-lg font-mono font-bold hover:underline"><a href="{% url 'profile'%}">Profile</a></li>
+            <li class="px-1 text-lg font-mono font-bold hover:underline"> <a href="#aboutSection">About Us</a></li> 
+      {% if  user.is_authenticated %}
+        <li class="space-x-1 flex ml-10">
+            <button class="bg-white ml-80 w-28 rounded-xl border border-black px-2">
+                <a href="{% url 'login' %}">Sign in</a>
+            </button>
+            <button class="bg-black ml-80 w-28 text-white rounded-xl border border-black px-2">
+                <a href="{% url 'register' %}">Get Started</a>
+            </button>
+        </li>
+    {% endif %}
+    
+        </ul>
+            </nav>
+
+    <!-- Main Content -->
+    <div class="container">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-4 sidebar">
+                <div class="card mb-4">
+                    <div class="card-header bg-black bg-primary text-white">
+                        <h5 class="mb-0 ">Document Analysis</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <h6 class="text-muted mb-2">Current Document</h6>
+                            {% if report %}
+                                <p>{{ report.title }}</p>
+                            {% else %}
+                                <p class="text-muted small">No document selected. Upload one to begin analysis.</p>
+                            {% endif %}
+                        </div>
+                        
+                        <form action="{% url 'chatbot_view' %}" method="POST" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                <label for="document" class="form-label ">Upload PDF Document</label>
+                                <input class="form-control" type="file" id="document" name="document" accept=".pdf">
+                            </div>
+                            <button type="submit" class="btn bg-black btn-primary w-100 rounded-pill">Upload & Analyze</button>
+                        </form>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">How to use</h5>
+                    </div>
+                    <div class="card-body">
+                        <ul class="small text-muted">
+                            <li>Upload a PDF document to analyze</li>
+                            <li>Ask questions about the document content</li>
+                            <li>Get AI-powered insights and summaries</li>
+                            <li>Extract key information automatically</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                {% if reports %}
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Your Reports</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="list-group">
+                            {% for report_item in reports %}
+                            <a href="{% url 'chatbot_view' report_id=report_item.id %}" class="list-group-item list-group-item-action {% if report and report.id == report_item.id %}active{% endif %}">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h6 class="mb-1">{{ report_item.title }}</h6>
+                                    <small>{{ report_item.created_at|date:"M d" }}</small>
+                                </div>
+                            </a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            
+            <!-- Chat Area -->
+            <div class="col-md-8">
+                <div class="card mb-4">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0 text-primary">Chat with Dociffy</h5>
+                        {% if report %}
+                            <p class="small text-muted mb-0">Ask questions about {{ report.title }}</p>
+                        {% else %}
+                            <p class="small  text-muted mb-0">Upload a document to start analyzing</p>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Messages Container -->
+                    <div class="messages-container" id="messages-container">
+                        {% if messages|length == 0 %}
+                        <!-- Welcome Message (if no messages) -->
+                        <div class="text-center my-5">
+                            <div class="mb-3 bg-primary text-white p-3 rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 70px; height: 70px;">
+                                <i class="fas fa-robot fa-2x"></i>
+                            </div>
+                            <h5>Hello! I'm Dociffy</h5>
+                            <p class="text-muted">Upload a document and start chatting</p>
+                        </div>
+                        {% else %}
+                        <!-- Display actual messages from database -->
+                        {% for message in messages %}
+                            <div class="chat-bubble-{% if message.is_user %}user{% else %}bot{% endif %}">
+                                <p class="mb-0">{{ message.content|linebreaksbr }}</p>
+                                <div class="chat-time {% if message.is_user %}text-white-50{% else %}text-muted{% endif %}">
+                                    {{ message.created_at|date:"g:i A" }}
+                                </div>
+                            </div>
+                        {% endfor %}
+                        {% endif %}
+                        <!-- Typing indicator will be dynamically added here -->
+                    </div>
+                    
+                    <!-- Chat Input -->
+                    <div class="card-footer bg-white">
+                        <form id="chat-form" method="POST" action="">
+                            {% csrf_token %}
+                            <div class="d-flex align-items-center gap-2">
+                                <input type="text" id="user-query" name="user_query" class="form-control chat-input" placeholder="Type a message..." {% if not report %}disabled{% endif %}>
+                                <button type="submit" class="send-btn" {% if not report %}disabled{% endif %}>
+                                    <i class="fas fa-paper-plane"></i>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Mobile Floating Chat Button -->
+    <button class="chatbot-toggle d-md-none" id="chatbot-toggle">
+        <i class="fas fa-comment fa-lg"></i>
+    </button>
+    
+    <!-- Mobile Chat Popup -->
+    <div class="chatbot-popup" id="chatbot-popup">
+        <div class="chatbot-header d-flex justify-content-between align-items-center">
+            <div>
+                <i class="fas fa-robot me-2"></i> Dociffy Chat
+            </div>
+            <button class="btn-close btn-close-white" id="close-chatbot"></button>
+        </div>
+        <div class="chatbot-messages" id="chatbot-messages">
+            {% if messages|length == 0 %}
+            <div class="chat-bubble-bot">
+                <p class="mb-0">Hello! How can I help you with your document?</p>
+                <div class="chat-time text-muted">Just now</div>
+            </div>
+            {% else %}
+            <!-- Display last few messages for mobile view -->
+            {% for message in messages|slice:"-5:" %}
+                <div class="chat-bubble-{% if message.is_user %}user{% else %}bot{% endif %}">
+                    <p class="mb-0">{{ message.content|linebreaksbr }}</p>
+                    <div class="chat-time {% if message.is_user %}text-white-50{% else %}text-muted{% endif %}">
+                        {{ message.created_at|date:"g:i A" }}
+                    </div>
+                </div>
+            {% endfor %}
+            {% endif %}
+        </div>
+        <div class="chatbot-input-container">
+            <input type="text" id="chatbot-input" class="form-control chat-input" placeholder="Type a message..." {% if not report %}disabled{% endif %}>
+            <button id="chatbot-send" class="send-btn ms-2" {% if not report %}disabled{% endif %}>
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Bootstrap & JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Scroll to bottom of messages on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const messagesContainer = document.getElementById('messages-container');
+            if (messagesContainer) {
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            }
+            
+            const mobileMessagesContainer = document.getElementById('chatbot-messages');
+            if (mobileMessagesContainer) {
+                mobileMessagesContainer.scrollTop = mobileMessagesContainer.scrollHeight;
+            }
+        });
+        
+        // CSRF token setup for AJAX requests
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        const csrftoken = getCookie('csrftoken');
+        
+        // Chat functionality
+        const chatForm = document.getElementById('chat-form');
+        const userQuery = document.getElementById('user-query');
+        const messagesContainer = document.getElementById('messages-container');
+        
+        if (chatForm && userQuery) {
+            chatForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const text = userQuery.value.trim();
+                if (!text) return;
+                
+                // Add user message to UI
+                const time = new Date().toLocaleTimeString([], {hour: 'numeric', minute:'2-digit'});
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'chat-bubble-user';
+                messageDiv.innerHTML = `
+                    <p class="mb-0">${text}</p>
+                    <div class="chat-time text-white-50">${time}</div>
+                `;
+                messagesContainer.appendChild(messageDiv);
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                
+                // Clear input
+                userQuery.value = '';
+                
+                // Show typing indicator
+                showTypingIndicator();
+                
+                // Send AJAX request
+                fetch(window.location.href, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRFToken': csrftoken
+                    },
+                    body: JSON.stringify({
+                        message: text
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Remove typing indicator
+                    removeTypingIndicator();
+                    
+                    // Add AI response
+                    const botMessageDiv = document.createElement('div');
+                    botMessageDiv.className = 'chat-bubble-bot';
+                    botMessageDiv.innerHTML = `
+                        <p class="mb-0">${data.response.replace(/\n/g, '<br>')}</p>
+                        <div class="chat-time text-muted">${time}</div>
+                    `;
+                    messagesContainer.appendChild(botMessageDiv);
+                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                })
+                .catch(error => {
+                    // Remove typing indicator
+                    removeTypingIndicator();
+                    
+                    // Show error message
+                    const errorDiv = document.createElement('div');
+                    errorDiv.className = 'chat-bubble-bot';
+                    errorDiv.innerHTML = `
+                        <p class="mb-0">Sorry, there was an error processing your request. Please try again.</p>
+                        <div class="chat-time text-muted">${time}</div>
+                    `;
+                    messagesContainer.appendChild(errorDiv);
+                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                    console.error('Error:', error);
+                });
+            });
+        }
+        
+        function showTypingIndicator() {
+            const indicator = document.createElement('div');
+            indicator.id = 'typing-indicator';
+            indicator.className = 'chat-bubble-bot';
+            indicator.innerHTML = `
+                <div class="typing-indicator">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            `;
+            messagesContainer.appendChild(indicator);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+        
+        function removeTypingIndicator() {
+            const indicator = document.getElementById('typing-indicator');
+            if (indicator) {
+                indicator.remove();
+            }
+        }
+        
+        // Mobile chatbot functionality
+        const toggleBtn = document.getElementById('chatbot-toggle');
+        const popup = document.getElementById('chatbot-popup');
+        const closeBtn = document.getElementById('close-chatbot');
+        const sendBtn = document.getElementById('chatbot-send');
+        const chatInput = document.getElementById('chatbot-input');
+        const chatMessages = document.getElementById('chatbot-messages');
+        
+        if (toggleBtn && popup) {
+            toggleBtn.addEventListener('click', () => {
+                popup.style.display = popup.style.display === 'block' ? 'none' : 'block';
+            });
+        }
+        
+        if (closeBtn && popup) {
+            closeBtn.addEventListener('click', () => {
+                popup.style.display = 'none';
+            });
+        }
+        
+        if (sendBtn && chatInput && chatMessages) {
+            sendBtn.addEventListener('click', sendMobileMessage);
+            chatInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') sendMobileMessage();
+            });
+        }
+        
+        function sendMobileMessage() {
+            const text = chatInput.value.trim();
+            if (!text) return;
+            
+            // Add user message to UI
+            const time = new Date().toLocaleTimeString([], {hour: 'numeric', minute:'2-digit'});
+            const userMsg = document.createElement('div');
+            userMsg.className = 'chat-bubble-user';
+            userMsg.innerHTML = `
+                <p class="mb-0">${text}</p>
+                <div class="chat-time text-white-50">${time}</div>
+            `;
+            chatMessages.appendChild(userMsg);
+            chatInput.value = '';
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            
+            // Show typing indicator
+            const typingDiv = document.createElement('div');
+            typingDiv.id = 'mobile-typing-indicator';
+            typingDiv.className = 'chat-bubble-bot';
+            typingDiv.innerHTML = `
+                <div class="typing-indicator">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            `;
+            chatMessages.appendChild(typingDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            
+            // Send AJAX request
+            fetch(window.location.href, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRFToken': csrftoken
+                },
+                body: JSON.stringify({
+                    message: text
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Remove typing indicator
+                const indicator = document.getElementById('mobile-typing-indicator');
+                if (indicator) indicator.remove();
+                
+                // Add AI response
+                const botMsg = document.createElement('div');
+                botMsg.className = 'chat-bubble-bot';
+                botMsg.innerHTML = `
+                    <p class="mb-0">${data.response.replace(/\n/g, '<br>')}</p>
+                    <div class="chat-time text-muted">${time}</div>
+                `;
+                chatMessages.appendChild(botMsg);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            })
+            .catch(error => {
+                // Remove typing indicator
+                const indicator = document.getElementById('mobile-typing-indicator');
+                if (indicator) indicator.remove();
+                
+                // Show error message
+                const errorMsg = document.createElement('div');
+                errorMsg.className = 'chat-bubble-bot';
+                errorMsg.innerHTML = `
+                    <p class="mb-0">Sorry, there was an error processing your request. Please try again.</p>
+                    <div class="chat-time text-muted">${time}</div>
+                `;
+                chatMessages.appendChild(errorMsg);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+                console.error('Error:', error);
+            });
+        }
+    </script>
+</body>
+</html>
